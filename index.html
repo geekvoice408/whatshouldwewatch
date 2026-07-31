@@ -31,6 +31,17 @@
             --green:  #00ff88;
             --orange: #ff6400;
             --blue:   #2962ff;
+
+            /* Lightened variants for small text on the dark background —
+               the saturated neons above fall below ~4.5:1 at body sizes. */
+            --pink-txt:   #ff7aa5;
+            --cyan-txt:   #6ffaff;
+            --purple-txt: #dd93ff;
+            --gold-txt:   #ffdf4d;
+            --green-txt:  #5cffb4;
+            --orange-txt: #ff9c5c;
+            --blue-txt:   #85adff;
+
             --bg:     #0d0015;
             --surface: rgba(13, 0, 21, 0.85);
         }
@@ -559,19 +570,19 @@
 
         .season-episode {
             margin-bottom: 12px;
-            font-size: 0.8em;
+            font-size: 0.95em;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.15em;
-            opacity: 0.65;
+            letter-spacing: 0.12em;
         }
 
-        .seinfeld-card   .season-episode { color: var(--cyan); }
-        .familyguy-card  .season-episode { color: var(--pink); }
-        .simpsons-card   .season-episode { color: var(--gold); }
-        .southpark-card  .season-episode { color: var(--purple); }
-        .futurama-card   .season-episode { color: var(--green); }
-        .koth-card       .season-episode { color: var(--orange); }
-        .laworder-card   .season-episode { color: var(--blue); }
+        .seinfeld-card   .season-episode { color: var(--cyan-txt); }
+        .familyguy-card  .season-episode { color: var(--pink-txt); }
+        .simpsons-card   .season-episode { color: var(--gold-txt); }
+        .southpark-card  .season-episode { color: var(--purple-txt); }
+        .futurama-card   .season-episode { color: var(--green-txt); }
+        .koth-card       .season-episode { color: var(--orange-txt); }
+        .laworder-card   .season-episode { color: var(--blue-txt); }
 
         .description {
             line-height: 1.75;
