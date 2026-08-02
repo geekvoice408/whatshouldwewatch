@@ -1,7 +1,7 @@
 # What Should We Watch? (Episode Roulette)
 
 A mobile-friendly web app that picks a random episode of Family Guy,
-The Simpsons, Seinfeld, South Park, Futurama, King of the Hill, or Law & Order.
+The Simpsons, Seinfeld, South Park, King of the Hill, or Law & Order.
 
 Hosted on GitHub Pages — no server, no API key.
 
@@ -10,7 +10,7 @@ Hosted on GitHub Pages — no server, no API key.
 A Dashing-style dashboard: flat colour tiles on a white studio background,
 with broadcast trimmings — SMPTE colour bars, an ON AIR light, a running
 timecode, CRT scanlines, and a "Please Stand By" test card while episodes
-load. Each show is a channel (CH 01–07) with its own colour, carried through
+load. Each show is a channel (CH 01–06) with its own colour, carried through
 to the season filters ("Channel Guide") and the now-playing card.
 
 ## How it works

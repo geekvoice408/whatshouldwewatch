@@ -305,7 +305,6 @@
         .familyguy-btn, .familyguy-card, .familyguy-row { --tile: #c9345c; --tile-ink: #fff;    --tile-strong: #b62d51; }
         .simpsons-btn,  .simpsons-card,  .simpsons-row  { --tile: #f2b705; --tile-ink: #241f06; --tile-strong: #8a6600; }
         .southpark-btn, .southpark-card, .southpark-row { --tile: #7b4bb5; --tile-ink: #fff;    --tile-strong: #6f43a4; }
-        .futurama-btn,  .futurama-card,  .futurama-row  { --tile: #12a37e; --tile-ink: #fff;    --tile-strong: #0d7d60; }
         .koth-btn,      .koth-card,      .koth-row      { --tile: #d1622a; --tile-ink: #fff;    --tile-strong: #ac4e1e; }
         .laworder-btn,  .laworder-card,  .laworder-row  { --tile: #2c3e50; --tile-ink: #fff;    --tile-strong: #2c3e50; }
 
@@ -726,7 +725,7 @@
     <div class="container">
         <div class="status-strip">
             <span class="on-air"><span class="rec-dot"></span>On Air</span>
-            <span class="source-tag">Ch. 1&ndash;7</span>
+            <span class="source-tag">Ch. 1&ndash;6</span>
             <span class="timecode" id="timecode">00:00:00:00</span>
         </div>
 
@@ -762,20 +761,14 @@
                 South Park
                 <span class="btn-seen-count" id="seen-southpark"></span>
             </button>
-            <button class="show-btn futurama-btn" onclick="getRandomEpisode('futurama')">
-                <span class="ch-label">CH 05</span>
-                <span class="btn-emoji">🚀</span>
-                Futurama
-                <span class="btn-seen-count" id="seen-futurama"></span>
-            </button>
             <button class="show-btn koth-btn" onclick="getRandomEpisode('koth')">
-                <span class="ch-label">CH 06</span>
+                <span class="ch-label">CH 05</span>
                 <span class="btn-emoji">🏠</span>
                 King of the Hill
                 <span class="btn-seen-count" id="seen-koth"></span>
             </button>
             <button class="show-btn laworder-btn" onclick="getRandomEpisode('laworder')">
-                <span class="ch-label">CH 07</span>
+                <span class="ch-label">CH 06</span>
                 <span class="btn-emoji">⚖️</span>
                 Law &amp; Order
                 <span class="btn-seen-count" id="seen-laworder"></span>
@@ -821,7 +814,6 @@
             simpsons:  { name: "The Simpsons",     tvmazeId: 83 },
             seinfeld:  { name: "Seinfeld",         tvmazeId: 530 },
             southpark: { name: "South Park",       tvmazeId: 112 },
-            futurama:  { name: "Futurama",         tvmazeId: 538 },
             koth:      { name: "King of the Hill", tvmazeId: 115 },
             laworder:  { name: "Law & Order",      tvmazeId: 562 }
         };
@@ -830,7 +822,7 @@
         // Overridden from the TVMaze episode list on first pick.
         const defaultSeasons = {
             seinfeld: 9, familyguy: 22, simpsons: 36, southpark: 27,
-            futurama: 8, koth: 13, laworder: 20
+            koth: 13, laworder: 20
         };
 
         // ── Episode catalogue (TVMaze) ───────────────────────────────────────
