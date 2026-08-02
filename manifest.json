@@ -4,8 +4,8 @@
   "description": "Randomly picks episodes for your favorite shows.",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0a0e27",
-  "theme_color": "#0a0e27",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "favicon.png",

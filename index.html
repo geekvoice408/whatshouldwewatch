@@ -9,14 +9,20 @@
     <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Episode Roulette">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#0d0015">
+    <meta name="theme-color" content="#ffffff">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Open+Sans:wght@400;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        /* ══════════════════════════════════════════════════════════════════
+           Episode Roulette — Dashing-style tiles on a white studio backdrop,
+           with broadcast/CRT theming (colour bars, ON AIR, timecode,
+           scanlines, standby screen).
+           ══════════════════════════════════════════════════════════════════ */
+
         * {
             margin: 0;
             padding: 0;
@@ -24,430 +30,384 @@
         }
 
         :root {
-            --pink:   #ff2d78;
-            --cyan:   #00f5ff;
-            --purple: #bf00ff;
-            --gold:   #ffd000;
-            --green:  #00ff88;
-            --orange: #ff6400;
-            --blue:   #2962ff;
+            /* Studio neutrals — the page itself stays white */
+            --paper:      #ffffff;
+            --paper-2:    #f4f6f9;
+            --ink:        #14171c;
+            --ink-soft:   #5c6672;
+            --ink-faint:  #8b95a1;
+            --rule:       #e2e6ec;
+            --rule-soft:  #eef1f5;
+            --rec:        #e0242b;
 
-            /* Lightened variants for small text on the dark background —
-               the saturated neons above fall below ~4.5:1 at body sizes. */
-            --pink-txt:   #ff7aa5;
-            --cyan-txt:   #6ffaff;
-            --purple-txt: #dd93ff;
-            --gold-txt:   #ffdf4d;
-            --green-txt:  #5cffb4;
-            --orange-txt: #ff9c5c;
-            --blue-txt:   #85adff;
+            /* SMPTE colour-bar strip */
+            --bar-white:   #f2f2f2;
+            --bar-yellow:  #f5d300;
+            --bar-cyan:    #00c2d1;
+            --bar-green:   #00a651;
+            --bar-magenta: #c026a3;
+            --bar-red:     #e0242b;
+            --bar-blue:    #2f6fb0;
 
-            --bg:     #0d0015;
-            --surface: rgba(13, 0, 21, 0.85);
+            /* Per-channel defaults, overridden by the .*-btn/.*-card rules:
+               --tile        solid tile fill (Dashing widget colour)
+               --tile-ink    text drawn on top of that fill
+               --tile-strong readable version of the colour on white */
+            --tile:        #2c3e50;
+            --tile-ink:    #ffffff;
+            --tile-strong: #2c3e50;
         }
 
+        html { -webkit-text-size-adjust: 100%; }
+
         body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
+            font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--paper);
+            color: var(--ink);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
-            color: #fff;
+            padding: 0 18px 56px;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* ── Synthwave sky gradient ── */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 55%;
-            background: linear-gradient(
-                to bottom,
-                #0d0015 0%,
-                #1a003a 40%,
-                #3d0066 70%,
-                #6b006b 85%,
-                #c0006b 100%
-            );
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* ── Perspective grid floor ── */
-        .grid-floor {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 55%;
-            background-image:
-                linear-gradient(to bottom, rgba(255,45,120,0.6) 1px, transparent 1px),
-                linear-gradient(to right,  rgba(255,45,120,0.4) 1px, transparent 1px);
-            background-size: 60px 60px;
-            transform: perspective(400px) rotateX(60deg);
-            transform-origin: bottom center;
-            pointer-events: none;
-            z-index: 0;
-            animation: grid-scroll 4s linear infinite;
-        }
-
-        @keyframes grid-scroll {
-            0%   { background-position: 0 0; }
-            100% { background-position: 0 60px; }
-        }
-
-        /* ── Retro sun ── */
-        .retro-sun {
-            position: fixed;
-            bottom: 47%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 140px;
-            height: 70px;
-            border-radius: 70px 70px 0 0;
-            background: linear-gradient(to right, #ff2020 0%, #ff8c00 20%, #ffd000 40%, #00cc66 60%, #0088ff 80%, #bf00ff 100%);
-            box-shadow: 0 0 60px 20px rgba(150, 80, 255, 0.35), 0 0 120px 40px rgba(0, 120, 255, 0.2);
-            overflow: hidden;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .retro-sun::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: repeating-linear-gradient(
-                to bottom,
-                transparent,
-                transparent 8px,
-                var(--bg) 8px,
-                var(--bg) 10px
-            );
-        }
-
-        /* ── Scanlines overlay ── */
+        /* ── CRT scanlines: barely-there texture, keeps the page white ── */
         .scan-lines {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            inset: 0;
             background: repeating-linear-gradient(
                 to bottom,
-                transparent 0px,
-                transparent 2px,
-                rgba(0, 0, 0, 0.15) 2px,
-                rgba(0, 0, 0, 0.15) 4px
+                rgba(20, 23, 28, 0.035) 0px,
+                rgba(20, 23, 28, 0.035) 1px,
+                transparent 1px,
+                transparent 3px
             );
             pointer-events: none;
-            z-index: 1;
+            z-index: 3;
         }
 
-        /* ── Top neon strip ── */
-        .neon-strip {
+        /* ── SMPTE colour bars pinned to the top of the screen ── */
+        .color-bars {
             position: fixed;
             top: 0; left: 0;
             width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #ff2020, #ff8c00, #ffd000, #00cc66, #0088ff, #bf00ff, #ff2020);
-            background-size: 200% 100%;
-            animation: neon-slide 5s linear infinite;
-            box-shadow: 0 0 10px rgba(255,100,0,0.7), 0 0 20px rgba(0,136,255,0.5), 0 0 32px rgba(191,0,255,0.4);
+            height: 6px;
+            display: flex;
             z-index: 100;
         }
+        .color-bars span { flex: 1; }
+        .color-bars span:nth-child(1) { background: var(--bar-white); }
+        .color-bars span:nth-child(2) { background: var(--bar-yellow); }
+        .color-bars span:nth-child(3) { background: var(--bar-cyan); }
+        .color-bars span:nth-child(4) { background: var(--bar-green); }
+        .color-bars span:nth-child(5) { background: var(--bar-magenta); }
+        .color-bars span:nth-child(6) { background: var(--bar-red); }
+        .color-bars span:nth-child(7) { background: var(--bar-blue); }
 
-        @keyframes neon-slide {
-            0%   { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
-        }
-
-        /* ── Main content wrapper ── */
         .container {
-            max-width: 600px;
+            max-width: 620px;
             width: 100%;
             position: relative;
             z-index: 2;
-            padding-top: 24px;
+            padding-top: 26px;
         }
 
-        /* ── Title ── */
-        .title-wrapper {
-            text-align: center;
-            margin-bottom: 8px;
+        /* ── Masthead / channel ident ────────────────────────────────────── */
+        .status-strip {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .on-air {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 2px solid var(--rec);
+            border-radius: 3px;
+            padding: 4px 9px;
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-size: 0.95em;
+            letter-spacing: 0.18em;
+            color: var(--rec);
+            line-height: 1;
+        }
+
+        .rec-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--rec);
+            animation: rec-blink 1.6s steps(1, end) infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes rec-blink {
+            0%, 55%  { opacity: 1; }
+            56%, 100%{ opacity: 0.15; }
+        }
+
+        .timecode {
+            margin-left: auto;
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.78em;
+            letter-spacing: 0.08em;
+            color: var(--ink-faint);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .source-tag {
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.68em;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            border: 1px solid var(--rule);
+            border-radius: 3px;
+            padding: 4px 8px;
+            line-height: 1;
         }
 
         h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 900;
-            font-size: 3em;
-            text-align: center;
-            letter-spacing: 0.06em;
-            color: #fff;
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-weight: 400;
+            font-size: 4.2em;
+            line-height: 0.92;
+            letter-spacing: 0.02em;
+            color: var(--ink);
+            /* RGB misregistration — the classic video-transfer fringe */
             text-shadow:
-                0 0 10px var(--cyan),
-                0 0 30px var(--cyan),
-                0 0 60px var(--cyan),
-                2px 2px 0 var(--pink),
-                4px 4px 0 var(--purple);
-            animation: flicker 6s infinite;
-        }
-
-        @keyframes flicker {
-            0%, 94%, 96%, 98%, 100% { opacity: 1; }
-            95%, 97% { opacity: 0.85; }
+                 2px 0 0 rgba(0, 194, 209, 0.45),
+                -2px 0 0 rgba(192, 38, 163, 0.4);
         }
 
         .subtitle {
-            text-align: center;
-            margin-bottom: 28px;
-            opacity: 0.7;
-            font-size: 0.75em;
-            letter-spacing: 0.25em;
+            margin-top: 10px;
+            font-size: 0.72em;
+            letter-spacing: 0.24em;
             text-transform: uppercase;
-            color: var(--cyan);
-            margin-top: 6px;
+            color: var(--ink-soft);
+            font-weight: 600;
         }
 
-        /* ── Neon divider ── */
-        .neon-divider {
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--pink), var(--cyan), var(--pink), transparent);
-            box-shadow: 0 0 8px var(--pink);
-            margin-bottom: 28px;
+        .masthead-rule {
+            height: 3px;
+            background: var(--ink);
+            margin: 18px 0 24px;
         }
 
-        /* ── Show buttons ── */
+        /* ── Dashing tiles: the channel buttons ──────────────────────────── */
         .show-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 14px;
-            margin-bottom: 28px;
+            margin-bottom: 26px;
         }
 
         .show-btn {
-            padding: 26px 16px;
-            font-size: 1.1em;
-            font-weight: 700;
-            border: 2px solid;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: 'Space Grotesk', sans-serif;
-            letter-spacing: 0.08em;
             position: relative;
             overflow: hidden;
-            background: rgba(13, 0, 21, 0.7);
-            backdrop-filter: blur(8px);
+            isolation: isolate;
+            padding: 26px 16px 20px;
+            border: none;
+            border-radius: 10px;
+            background: var(--tile);
+            color: var(--tile-ink);
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-size: 1.5em;
+            line-height: 1.05;
+            letter-spacing: 0.06em;
             text-align: center;
-            line-height: 1.3;
-            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow:
+                0 4px 0 rgba(0, 0, 0, 0.22),
+                0 10px 22px rgba(20, 23, 28, 0.14);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.2s ease;
+        }
+
+        /* Screen glare + scanlines inside every tile */
+        .show-btn::before,
+        .episode-info::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 46%),
+                repeating-linear-gradient(
+                    to bottom,
+                    rgba(255,255,255,0.07) 0px,
+                    rgba(255,255,255,0.07) 1px,
+                    transparent 1px,
+                    transparent 3px
+                );
+        }
+
+        .show-btn:hover:not(:disabled) {
+            filter: brightness(1.07);
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 0 rgba(0, 0, 0, 0.22),
+                0 14px 26px rgba(20, 23, 28, 0.18);
+        }
+
+        .show-btn:not(:disabled):active {
+            transform: translateY(3px);
+            box-shadow:
+                0 1px 0 rgba(0, 0, 0, 0.22),
+                0 4px 10px rgba(20, 23, 28, 0.16);
+        }
+
+        .show-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        .show-btn:focus-visible {
+            outline: 3px solid var(--ink);
+            outline-offset: 3px;
+        }
+
+        .ch-label {
+            position: absolute;
+            top: 9px;
+            left: 11px;
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.46em;
+            letter-spacing: 0.16em;
+            opacity: 0.78;
         }
 
         .show-btn .btn-emoji {
             display: block;
-            font-size: 1.5em;
-            margin-bottom: 6px;
+            font-size: 1.35em;
+            margin-bottom: 8px;
+            line-height: 1;
         }
 
-        /* Shimmer sweep */
-        .show-btn::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 60%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: skewX(-20deg);
-            transition: left 0.5s ease;
-        }
-
-        .show-btn:hover::after { left: 150%; }
-        .show-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .show-btn:not(:disabled):active { transform: scale(0.96); }
-
-        .seinfeld-btn {
-            border-color: var(--cyan);
-            color: var(--cyan);
-            box-shadow: inset 0 0 12px rgba(0,245,255,0.05);
-        }
-        .seinfeld-btn:hover:not(:disabled) {
-            background: rgba(0,245,255,0.1);
-            box-shadow: 0 0 20px var(--cyan), 0 0 40px rgba(0,245,255,0.3), inset 0 0 12px rgba(0,245,255,0.1);
-        }
-
-        .familyguy-btn {
-            border-color: var(--pink);
-            color: var(--pink);
-            box-shadow: inset 0 0 12px rgba(255,45,120,0.05);
-        }
-        .familyguy-btn:hover:not(:disabled) {
-            background: rgba(255,45,120,0.1);
-            box-shadow: 0 0 20px var(--pink), 0 0 40px rgba(255,45,120,0.3), inset 0 0 12px rgba(255,45,120,0.1);
-        }
-
-        .simpsons-btn {
-            border-color: var(--gold);
-            color: var(--gold);
-            box-shadow: inset 0 0 12px rgba(255,208,0,0.05);
-        }
-        .simpsons-btn:hover:not(:disabled) {
-            background: rgba(255,208,0,0.08);
-            box-shadow: 0 0 20px var(--gold), 0 0 40px rgba(255,208,0,0.3), inset 0 0 12px rgba(255,208,0,0.1);
-        }
-
-        .southpark-btn {
-            border-color: var(--purple);
-            color: var(--purple);
-            box-shadow: inset 0 0 12px rgba(191,0,255,0.05);
-        }
-        .southpark-btn:hover:not(:disabled) {
-            background: rgba(191,0,255,0.1);
-            box-shadow: 0 0 20px var(--purple), 0 0 40px rgba(191,0,255,0.3), inset 0 0 12px rgba(191,0,255,0.1);
-        }
-
-        .futurama-btn {
-            border-color: var(--green);
-            color: var(--green);
-            box-shadow: inset 0 0 12px rgba(0,255,136,0.05);
-        }
-        .futurama-btn:hover:not(:disabled) {
-            background: rgba(0,255,136,0.08);
-            box-shadow: 0 0 20px var(--green), 0 0 40px rgba(0,255,136,0.3), inset 0 0 12px rgba(0,255,136,0.1);
-        }
-
-        .koth-btn {
-            border-color: var(--orange);
-            color: var(--orange);
-            box-shadow: inset 0 0 12px rgba(255,100,0,0.05);
-        }
-        .koth-btn:hover:not(:disabled) {
-            background: rgba(255,100,0,0.08);
-            box-shadow: 0 0 20px var(--orange), 0 0 40px rgba(255,100,0,0.3), inset 0 0 12px rgba(255,100,0,0.1);
-        }
-
-        .laworder-btn {
-            border-color: var(--blue);
-            color: var(--blue);
-            box-shadow: inset 0 0 12px rgba(41,98,255,0.05);
-        }
-        .laworder-btn:hover:not(:disabled) {
-            background: rgba(41,98,255,0.1);
-            box-shadow: 0 0 20px var(--blue), 0 0 40px rgba(41,98,255,0.3), inset 0 0 12px rgba(41,98,255,0.1);
-        }
-
-        /* ── Seen badge on buttons ── */
         .btn-seen-count {
             display: block;
-            font-size: 0.55em;
-            font-weight: 400;
-            font-family: 'DM Sans', sans-serif;
-            opacity: 0.5;
-            margin-top: 5px;
-            letter-spacing: 0.04em;
-            text-transform: none;
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.42em;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-top: 8px;
             min-height: 1em;
         }
 
-        /* ── Season filter section ── */
+        /* ── Channel palette ─────────────────────────────────────────────────
+           One rule per show sets the tile fill, the text on it, and a darker
+           variant used wherever the colour has to sit on white. */
+        .seinfeld-btn,  .seinfeld-card,  .seinfeld-row  { --tile: #2f6fb0; --tile-ink: #fff;    --tile-strong: #2a659f; }
+        .familyguy-btn, .familyguy-card, .familyguy-row { --tile: #c9345c; --tile-ink: #fff;    --tile-strong: #b62d51; }
+        .simpsons-btn,  .simpsons-card,  .simpsons-row  { --tile: #f2b705; --tile-ink: #241f06; --tile-strong: #8a6600; }
+        .southpark-btn, .southpark-card, .southpark-row { --tile: #7b4bb5; --tile-ink: #fff;    --tile-strong: #6f43a4; }
+        .futurama-btn,  .futurama-card,  .futurama-row  { --tile: #12a37e; --tile-ink: #fff;    --tile-strong: #0d7d60; }
+        .koth-btn,      .koth-card,      .koth-row      { --tile: #d1622a; --tile-ink: #fff;    --tile-strong: #ac4e1e; }
+        .laworder-btn,  .laworder-card,  .laworder-row  { --tile: #2c3e50; --tile-ink: #fff;    --tile-strong: #2c3e50; }
+
+        /* ── Channel guide (season filters) ──────────────────────────────── */
         .filter-toggle-btn {
             width: 100%;
-            padding: 10px 16px;
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 4px;
-            color: rgba(255,255,255,0.35);
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.75em;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
+            padding: 12px 16px;
+            background: var(--paper);
+            border: 2px solid var(--rule);
+            border-radius: 8px;
+            color: var(--ink-soft);
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-size: 1em;
+            letter-spacing: 0.16em;
             cursor: pointer;
-            margin-bottom: 10px;
-            transition: all 0.2s ease;
+            margin-bottom: 12px;
+            transition: border-color 0.15s ease, color 0.15s ease;
         }
         .filter-toggle-btn:hover {
-            border-color: rgba(255,255,255,0.22);
-            color: rgba(255,255,255,0.6);
+            border-color: var(--ink);
+            color: var(--ink);
         }
 
         .filter-panel {
             display: none;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 6px;
+            background: var(--paper);
+            border: 2px solid var(--rule);
+            border-radius: 10px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
         .filter-panel.open { display: block; }
 
         .filter-show-row {
             margin-bottom: 18px;
             padding-bottom: 18px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid var(--rule-soft);
         }
         .filter-show-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 
         .filter-show-label {
-            font-size: 0.7em;
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            opacity: 0.45;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-size: 1.1em;
+            letter-spacing: 0.12em;
+            color: var(--tile-strong);
             margin-bottom: 10px;
-            font-family: 'Space Grotesk', sans-serif;
+        }
+        .filter-show-label::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            background: var(--tile);
+            flex-shrink: 0;
         }
 
         .season-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 
         .season-chip {
-            padding: 3px 8px;
-            border: 1px solid;
+            padding: 4px 9px;
+            border: 1.5px solid var(--tile-strong);
             border-radius: 20px;
+            font-family: 'Roboto Mono', ui-monospace, monospace;
             font-size: 0.68em;
-            font-weight: 600;
+            font-weight: 500;
+            color: var(--tile-strong);
+            background: var(--paper);
             cursor: pointer;
-            transition: all 0.15s ease;
-            font-family: 'Space Grotesk', sans-serif;
-            letter-spacing: 0.04em;
-            background: transparent;
+            transition: background 0.15s ease, color 0.15s ease;
             user-select: none;
         }
-        .season-chip:hover { opacity: 0.75; }
+        .season-chip:hover:not(.off) {
+            background: var(--tile);
+            color: var(--tile-ink);
+        }
         .season-chip.off {
-            border-color: rgba(255,255,255,0.15) !important;
-            color: rgba(255,255,255,0.2) !important;
+            border-color: var(--rule);
+            color: var(--ink-faint);
+            background: var(--paper-2);
             text-decoration: line-through;
         }
-
-        .seinfeld-chips .season-chip:not(.off)  { border-color: var(--cyan);   color: var(--cyan); }
-        .familyguy-chips .season-chip:not(.off) { border-color: var(--pink);   color: var(--pink); }
-        .simpsons-chips .season-chip:not(.off)  { border-color: var(--gold);   color: var(--gold); }
-        .southpark-chips .season-chip:not(.off) { border-color: var(--purple); color: var(--purple); }
-        .futurama-chips .season-chip:not(.off)  { border-color: var(--green);  color: var(--green); }
-        .koth-chips .season-chip:not(.off)      { border-color: var(--orange); color: var(--orange); }
-        .laworder-chips .season-chip:not(.off)  { border-color: var(--blue);   color: var(--blue); }
 
         .filter-row-footer {
             display: flex;
             align-items: center;
             gap: 14px;
-            margin-top: 10px;
+            margin-top: 12px;
         }
         .filter-seen-count {
-            font-size: 0.65em;
-            opacity: 0.35;
+            font-size: 0.7em;
+            color: var(--ink-faint);
             letter-spacing: 0.05em;
-            font-family: 'DM Sans', sans-serif;
         }
         .reset-history-btn {
             background: none;
             border: none;
-            color: rgba(255,255,255,0.25);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.65em;
+            color: var(--ink-soft);
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.7em;
             letter-spacing: 0.06em;
             text-transform: uppercase;
             cursor: pointer;
@@ -455,295 +415,402 @@
             text-decoration: underline;
             transition: color 0.15s ease;
         }
-        .reset-history-btn:hover { color: rgba(255,255,255,0.6); }
+        .reset-history-btn:hover { color: var(--rec); }
 
-        /* ── Loading ── */
+        /* ── Standby screen (loading) ────────────────────────────────────── */
         .loading {
-            text-align: center;
-            padding: 40px;
             display: none;
-            font-size: 1em;
-            color: var(--cyan);
-            letter-spacing: 0.15em;
+            text-align: center;
+            padding: 8px 0 24px;
         }
-
         .loading.show { display: block; }
 
+        .standby {
+            border: 2px solid var(--ink);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--paper);
+        }
+
+        .standby-bars {
+            display: flex;
+            height: 74px;
+        }
+        .standby-bars span { flex: 1; }
+        .standby-bars span:nth-child(1) { background: var(--bar-white); }
+        .standby-bars span:nth-child(2) { background: var(--bar-yellow); }
+        .standby-bars span:nth-child(3) { background: var(--bar-cyan); }
+        .standby-bars span:nth-child(4) { background: var(--bar-green); }
+        .standby-bars span:nth-child(5) { background: var(--bar-magenta); }
+        .standby-bars span:nth-child(6) { background: var(--bar-red); }
+        .standby-bars span:nth-child(7) { background: var(--bar-blue); }
+
+        .standby-caption {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 14px;
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-size: 1.2em;
+            letter-spacing: 0.22em;
+            color: var(--ink);
+            border-top: 2px solid var(--ink);
+        }
+
         .spinner {
-            width: 52px;
-            height: 52px;
-            margin: 0 auto 20px;
-            border: 3px solid rgba(0,245,255,0.15);
-            border-top: 3px solid var(--cyan);
-            border-right: 3px solid var(--pink);
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--rule);
+            border-top-color: var(--ink);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
+            flex-shrink: 0;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── Result card ── */
+        /* ── Result card: a set with a channel bar across the top ────────── */
         .result-card {
-            background: var(--surface);
-            border: 2px solid;
-            border-radius: 6px;
-            padding: 28px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
             display: none;
-            animation: slideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-            backdrop-filter: blur(12px);
+            background: var(--paper);
+            border: 2px solid var(--rule);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 14px 34px rgba(20, 23, 28, 0.12);
+            animation: channel-change 0.32s ease both;
         }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(24px) scale(0.98); }
-            to   { opacity: 1; transform: translateY(0)  scale(1); }
-        }
-
         .result-card.show { display: block; }
 
-        /* Card accent line */
-        .card-accent {
-            height: 3px;
-            border-radius: 2px;
-            margin-bottom: 20px;
+        @keyframes channel-change {
+            0%   { opacity: 0; transform: translateY(14px) scaleY(0.94); }
+            60%  { opacity: 1; }
+            100% { opacity: 1; transform: translateY(0) scaleY(1); }
         }
 
-        .seinfeld-card   { border-color: var(--cyan);   box-shadow: 0 0 30px rgba(0,245,255,0.2); }
-        .familyguy-card  { border-color: var(--pink);   box-shadow: 0 0 30px rgba(255,45,120,0.2); }
-        .simpsons-card   { border-color: var(--gold);   box-shadow: 0 0 30px rgba(255,208,0,0.2); }
-        .southpark-card  { border-color: var(--purple); box-shadow: 0 0 30px rgba(191,0,255,0.2); }
-        .futurama-card   { border-color: var(--green);  box-shadow: 0 0 30px rgba(0,255,136,0.2); }
-        .koth-card       { border-color: var(--orange); box-shadow: 0 0 30px rgba(255,100,0,0.2); }
-        .laworder-card   { border-color: var(--blue);   box-shadow: 0 0 30px rgba(41,98,255,0.2); }
+        .card-accent {
+            height: 8px;
+            background: var(--tile);
+        }
 
-        .seinfeld-card   .card-accent { background: linear-gradient(90deg, transparent, var(--cyan),   transparent); box-shadow: 0 0 8px var(--cyan); }
-        .familyguy-card  .card-accent { background: linear-gradient(90deg, transparent, var(--pink),   transparent); box-shadow: 0 0 8px var(--pink); }
-        .simpsons-card   .card-accent { background: linear-gradient(90deg, transparent, var(--gold),   transparent); box-shadow: 0 0 8px var(--gold); }
-        .southpark-card  .card-accent { background: linear-gradient(90deg, transparent, var(--purple), transparent); box-shadow: 0 0 8px var(--purple); }
-        .futurama-card   .card-accent { background: linear-gradient(90deg, transparent, var(--green),  transparent); box-shadow: 0 0 8px var(--green); }
-        .koth-card       .card-accent { background: linear-gradient(90deg, transparent, var(--orange), transparent); box-shadow: 0 0 8px var(--orange); }
-        .laworder-card   .card-accent { background: linear-gradient(90deg, transparent, var(--blue),   transparent); box-shadow: 0 0 8px var(--blue); }
+        .card-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 22px 12px;
+            border-bottom: 1px solid var(--rule);
+            flex-wrap: wrap;
+        }
+
+        .now-playing {
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.66em;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--rec);
+        }
 
         .show-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.6em;
-            font-weight: 900;
-            margin-bottom: 20px;
-            text-align: center;
-            padding-bottom: 14px;
-            border-bottom: 1px solid;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-size: 1.9em;
+            letter-spacing: 0.08em;
+            color: var(--tile-strong);
+            width: 100%;
+            line-height: 1;
         }
 
-        .seinfeld-card   .show-title { color: var(--cyan);   border-color: rgba(0,245,255,0.3);   text-shadow: 0 0 16px var(--cyan); }
-        .familyguy-card  .show-title { color: var(--pink);   border-color: rgba(255,45,120,0.3);  text-shadow: 0 0 16px var(--pink); }
-        .simpsons-card   .show-title { color: var(--gold);   border-color: rgba(255,208,0,0.3);   text-shadow: 0 0 16px var(--gold); }
-        .southpark-card  .show-title { color: var(--purple); border-color: rgba(191,0,255,0.3);   text-shadow: 0 0 16px var(--purple); }
-        .futurama-card   .show-title { color: var(--green);  border-color: rgba(0,255,136,0.3);   text-shadow: 0 0 16px var(--green); }
-        .koth-card       .show-title { color: var(--orange); border-color: rgba(255,100,0,0.3);   text-shadow: 0 0 16px var(--orange); }
-        .laworder-card   .show-title { color: var(--blue);   border-color: rgba(41,98,255,0.3);   text-shadow: 0 0 16px var(--blue); }
-
+        /* The "screen" the episode plays on */
         .episode-info {
-            background: rgba(0, 0, 0, 0.35);
+            position: relative;
+            isolation: isolate;
+            margin: 20px 22px;
             padding: 20px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            border-left: 3px solid;
+            background: var(--paper-2);
+            border-left: 5px solid var(--tile);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
-        .seinfeld-card   .episode-info { border-color: var(--cyan); }
-        .familyguy-card  .episode-info { border-color: var(--pink); }
-        .simpsons-card   .episode-info { border-color: var(--gold); }
-        .southpark-card  .episode-info { border-color: var(--purple); }
-        .futurama-card   .episode-info { border-color: var(--green); }
-        .koth-card       .episode-info { border-color: var(--orange); }
-        .laworder-card   .episode-info { border-color: var(--blue); }
+        /* Light-surface scanlines need to be dark, not white */
+        .episode-info::before {
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 40%),
+                repeating-linear-gradient(
+                    to bottom,
+                    rgba(20, 23, 28, 0.035) 0px,
+                    rgba(20, 23, 28, 0.035) 1px,
+                    transparent 1px,
+                    transparent 3px
+                );
+        }
 
+        /* Slow tracking bar rolling down the screen */
+        .episode-info::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 42px;
+            z-index: -1;
+            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0) 100%);
+            animation: tracking 7s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes tracking {
+            0%   { top: -60px; }
+            100% { top: 100%; }
+        }
+
+        /* Episode names keep their own casing — Bebas Neue is caps-only */
         .episode-title {
-            font-size: 1.2em;
-            font-weight: bold;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 800;
+            font-size: 1.3em;
+            line-height: 1.25;
+            color: var(--ink);
             margin-bottom: 10px;
-            color: #fff;
-            font-family: 'Space Grotesk', sans-serif;
         }
 
         .season-episode {
-            margin-bottom: 12px;
-            font-size: 0.95em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
+            display: inline-block;
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.75em;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            color: var(--tile-ink);
+            background: var(--tile);
+            border-radius: 4px;
+            padding: 4px 9px;
+            margin-bottom: 14px;
         }
-
-        .seinfeld-card   .season-episode { color: var(--cyan-txt); }
-        .familyguy-card  .season-episode { color: var(--pink-txt); }
-        .simpsons-card   .season-episode { color: var(--gold-txt); }
-        .southpark-card  .season-episode { color: var(--purple-txt); }
-        .futurama-card   .season-episode { color: var(--green-txt); }
-        .koth-card       .season-episode { color: var(--orange-txt); }
-        .laworder-card   .season-episode { color: var(--blue-txt); }
+        .season-episode:empty { display: none; }
 
         .description {
-            line-height: 1.75;
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 15px;
-            font-size: 0.9em;
+            line-height: 1.7;
+            color: var(--ink);
+            font-size: 0.92em;
         }
 
         .meta-info {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-            gap: 14px;
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid rgba(255,255,255,0.08);
+            gap: 10px;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid var(--rule);
         }
 
-        .meta-item { text-align: center; }
+        .meta-item {
+            text-align: center;
+            background: var(--paper);
+            border: 1px solid var(--rule);
+            border-radius: 6px;
+            padding: 10px 6px;
+        }
 
         .meta-label {
-            font-size: 0.65em;
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.62em;
             text-transform: uppercase;
-            letter-spacing: 0.15em;
-            opacity: 0.5;
-            margin-bottom: 4px;
+            letter-spacing: 0.14em;
+            color: var(--ink-faint);
+            margin-bottom: 5px;
         }
 
         .meta-value {
-            font-size: 1em;
-            font-weight: bold;
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-size: 1.25em;
+            letter-spacing: 0.04em;
+            color: var(--tile-strong);
         }
 
-        .seinfeld-card   .meta-value { color: var(--cyan); }
-        .familyguy-card  .meta-value { color: var(--pink); }
-        .simpsons-card   .meta-value { color: var(--gold); }
-        .southpark-card  .meta-value { color: var(--purple); }
-        .futurama-card   .meta-value { color: var(--green); }
-        .koth-card       .meta-value { color: var(--orange); }
-        .laworder-card   .meta-value { color: var(--blue); }
-
-        /* ── Try again button ── */
+        /* ── Remote-control buttons ──────────────────────────────────────── */
         .try-again-btn {
-            width: 100%;
-            padding: 14px;
-            background: transparent;
-            color: rgba(255,255,255,0.6);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 4px;
-            font-size: 0.85em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: 'Space Grotesk', sans-serif;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-        }
-
-        .try-again-btn:hover {
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(255,255,255,0.5);
+            display: block;
+            width: calc(100% - 44px);
+            margin: 0 22px 22px;
+            padding: 15px;
+            background: var(--ink);
             color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-size: 1.05em;
+            letter-spacing: 0.18em;
+            cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+        }
+        .try-again-btn:hover { background: #000; }
+        .try-again-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
         }
 
-        /* ── Error ── */
+        /* The reset button rendered inside the meta grid by displayAllSeen() */
+        .meta-info .try-again-btn {
+            width: 100%;
+            margin: 0;
+        }
+
+        /* ── Signal lost (errors) ────────────────────────────────────────── */
         .error-message {
-            background: rgba(255,45,120,0.08);
-            border: 1px solid rgba(255,45,120,0.4);
-            color: var(--pink);
-            padding: 16px 20px;
-            border-radius: 6px;
-            margin-bottom: 20px;
             display: none;
-            text-align: center;
-            font-size: 0.85em;
-            letter-spacing: 0.05em;
+            align-items: center;
+            gap: 10px;
+            background: var(--paper);
+            border: 2px solid var(--rec);
+            border-left-width: 8px;
+            border-radius: 8px;
+            color: var(--ink);
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            font-size: 0.88em;
+            line-height: 1.5;
+        }
+        .error-message.show { display: flex; }
+        .error-message::before {
+            content: 'NO SIGNAL';
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.72em;
+            letter-spacing: 0.12em;
+            color: var(--rec);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
-        .error-message.show { display: block; }
+        /* ── Sign-off ────────────────────────────────────────────────────── */
+        .signoff {
+            margin-top: 28px;
+            text-align: center;
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.64em;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+        }
+        .signoff a { color: var(--ink-soft); }
 
-        /* ── Responsive ── */
+        /* ── Responsive ──────────────────────────────────────────────────── */
         @media (max-width: 480px) {
-            h1 { font-size: 2em; }
-            .show-buttons { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .show-btn { padding: 18px 10px; font-size: 0.9em; }
+            h1 { font-size: 3em; }
+            .container { padding-top: 20px; }
+            .show-buttons { gap: 10px; }
+            .show-btn { padding: 20px 10px 16px; font-size: 1.25em; }
+            .episode-info { margin: 16px; padding: 16px; }
+            .try-again-btn { width: calc(100% - 32px); margin: 0 16px 16px; }
+            .card-head { padding: 14px 16px 10px; }
+        }
+
+        /* ── Motion preferences ──────────────────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+            .rec-dot,
+            .episode-info::after,
+            .result-card,
+            .spinner {
+                animation: none;
+            }
+            .rec-dot { opacity: 1; }
+            .episode-info::after { display: none; }
+            .show-btn { transition: none; }
         }
     </style>
 </head>
 <body>
-    <div class="scan-lines"></div>
-    <div class="neon-strip"></div>
-    <div class="grid-floor"></div>
-    <div class="retro-sun"></div>
+    <div class="color-bars" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="scan-lines" aria-hidden="true"></div>
 
     <div class="container">
-        <div class="title-wrapper">
-            <h1>WHAT SHOULD<br>WE WATCH?</h1>
+        <div class="status-strip">
+            <span class="on-air"><span class="rec-dot"></span>On Air</span>
+            <span class="source-tag">Ch. 1&ndash;7</span>
+            <span class="timecode" id="timecode">00:00:00:00</span>
         </div>
 
-        <p class="subtitle">pick a show &mdash; get an episode</p>
+        <h1>WHAT SHOULD<br>WE WATCH?</h1>
+        <p class="subtitle">Pick a channel &mdash; get an episode</p>
 
-        <div class="neon-divider"></div>
+        <div class="masthead-rule"></div>
 
         <div class="error-message" id="errorMessage"></div>
 
         <div class="show-buttons">
             <button class="show-btn seinfeld-btn" onclick="getRandomEpisode('seinfeld')">
+                <span class="ch-label">CH 01</span>
                 <span class="btn-emoji">🥨</span>
                 Seinfeld
                 <span class="btn-seen-count" id="seen-seinfeld"></span>
             </button>
             <button class="show-btn familyguy-btn" onclick="getRandomEpisode('familyguy')">
+                <span class="ch-label">CH 02</span>
                 <span class="btn-emoji">🐶</span>
                 Family Guy
                 <span class="btn-seen-count" id="seen-familyguy"></span>
             </button>
             <button class="show-btn simpsons-btn" onclick="getRandomEpisode('simpsons')">
+                <span class="ch-label">CH 03</span>
                 <span class="btn-emoji">🍩</span>
                 The Simpsons
                 <span class="btn-seen-count" id="seen-simpsons"></span>
             </button>
             <button class="show-btn southpark-btn" onclick="getRandomEpisode('southpark')">
+                <span class="ch-label">CH 04</span>
                 <span class="btn-emoji">⛰️</span>
                 South Park
                 <span class="btn-seen-count" id="seen-southpark"></span>
             </button>
             <button class="show-btn futurama-btn" onclick="getRandomEpisode('futurama')">
+                <span class="ch-label">CH 05</span>
                 <span class="btn-emoji">🚀</span>
                 Futurama
                 <span class="btn-seen-count" id="seen-futurama"></span>
             </button>
             <button class="show-btn koth-btn" onclick="getRandomEpisode('koth')">
+                <span class="ch-label">CH 06</span>
                 <span class="btn-emoji">🏠</span>
                 King of the Hill
                 <span class="btn-seen-count" id="seen-koth"></span>
             </button>
             <button class="show-btn laworder-btn" onclick="getRandomEpisode('laworder')">
+                <span class="ch-label">CH 07</span>
                 <span class="btn-emoji">⚖️</span>
                 Law &amp; Order
                 <span class="btn-seen-count" id="seen-laworder"></span>
             </button>
         </div>
 
-        <button class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleFilterPanel()">⚙ Season Filters ▼</button>
+        <button class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleFilterPanel()">&#9881; Channel Guide &#9660;</button>
         <div class="filter-panel" id="filterPanel"></div>
 
         <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>SCANNING SIGNALS...</p>
+            <div class="standby">
+                <div class="standby-bars" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <p class="standby-caption"><span class="spinner"></span>Please Stand By</p>
+            </div>
         </div>
 
         <div id="resultCard" class="result-card">
             <div class="card-accent"></div>
-            <div class="show-title" id="showTitle"></div>
+            <div class="card-head">
+                <span class="rec-dot"></span>
+                <span class="now-playing">Now Playing</span>
+                <div class="show-title" id="showTitle"></div>
+            </div>
             <div class="episode-info">
                 <div class="episode-title" id="episodeTitle"></div>
                 <div class="season-episode" id="seasonEpisode"></div>
                 <div class="description" id="description"></div>
                 <div class="meta-info" id="metaInfo"></div>
             </div>
-            <button class="try-again-btn" onclick="hideResult()">&#8592; Pick Another Show</button>
+            <button class="try-again-btn" onclick="hideResult()">&#9198; Pick Another Channel</button>
         </div>
+
+        <p class="signoff">Episode data by <a href="https://www.tvmaze.com/api">TVMaze</a></p>
     </div>
 
     <script>
@@ -906,7 +973,7 @@
             const panel = document.getElementById('filterPanel');
             const btn   = document.getElementById('filterToggleBtn');
             const open  = panel.classList.toggle('open');
-            btn.textContent = open ? '⚙ Season Filters ▲' : '⚙ Season Filters ▼';
+            btn.textContent = open ? '⚙ Channel Guide ▲' : '⚙ Channel Guide ▼';
             if (open) renderFilterPanel();
         }
 
@@ -923,7 +990,7 @@
                 const totalSeen = Object.keys(getSeenMap(key)).length;
 
                 const row = document.createElement('div');
-                row.className = 'filter-show-row';
+                row.className = `filter-show-row ${key}-row`;
 
                 const label = document.createElement('div');
                 label.className = 'filter-show-label';
@@ -984,7 +1051,7 @@
                 if (candidates.length === 0) {
                     hideLoading();
                     const allExcluded = episodes.every(ep => excluded.has(ep.s));
-                    if (allExcluded) showError('All seasons excluded — re-enable some in ⚙ Season Filters.');
+                    if (allExcluded) showError('All seasons excluded — re-enable some in the ⚙ Channel Guide.');
                     else displayAllSeen(showKey);
                     return;
                 }
@@ -1000,7 +1067,7 @@
 
             } catch (error) {
                 hideLoading();
-                showError(`ERROR: ${error.message}`);
+                showError(error.message);
             }
         }
 
@@ -1034,8 +1101,8 @@
             document.getElementById('description').textContent   =
                 `Every available episode has been marked as watched. Reset your history to start fresh.`;
             document.getElementById('metaInfo').innerHTML =
-                `<div style="width:100%;text-align:center">
-                    <button class="try-again-btn" style="border-color:rgba(255,255,255,0.3)"
+                `<div style="grid-column:1/-1">
+                    <button class="try-again-btn"
                         onclick="resetSeen('${showKey}'); hideResult();">
                         ↺ Reset ${showData[showKey].name} History
                     </button>
@@ -1048,9 +1115,26 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // ── Broadcast timecode (HH:MM:SS:FF at 30 fps) ───────────────────────
+
+        function startTimecode() {
+            const el = document.getElementById('timecode');
+            if (!el) return;
+            const pad = n => String(n).padStart(2, '0');
+            const tick = () => {
+                const now = new Date();
+                const frames = Math.floor(now.getMilliseconds() / 1000 * 30);
+                el.textContent =
+                    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}:${pad(frames)}`;
+            };
+            tick();
+            setInterval(tick, 100);
+        }
+
         // ── Init ─────────────────────────────────────────────────────────────
         migrateSeenHistory();
         updateButtonBadges();
+        startTimecode();
     </script>
 </body>
 </html>
