@@ -211,7 +211,9 @@
 
         // Shared watch-history API (Cloudflare Worker + KV) — same backend
         // index.html reads/writes, so this page reflects every browser/device.
-        const API_BASE = 'https://api.whatshouldwewatch.geekvoice.net';
+        // Temporarily workers.dev while the api.whatshouldwewatch.geekvoice.net
+        // custom-domain cert finishes provisioning — switch back once it's live.
+        const API_BASE = 'https://whatshouldwewatch-api.paul-9bb.workers.dev';
 
         const showData = {
             familyguy: { name: "Family Guy" },

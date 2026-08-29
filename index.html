@@ -809,7 +809,9 @@
     <script>
         // Shared watch-history API (Cloudflare Worker + KV) — replaces
         // per-browser localStorage so "watched" is the same everywhere.
-        const API_BASE = 'https://api.whatshouldwewatch.geekvoice.net';
+        // Temporarily workers.dev while the api.whatshouldwewatch.geekvoice.net
+        // custom-domain cert finishes provisioning — switch back once it's live.
+        const API_BASE = 'https://whatshouldwewatch-api.paul-9bb.workers.dev';
 
         // TVMaze is keyless; one /episodes call per show returns the full
         // catalogue (title, summary, runtime, rating, airdate) in one shot.
