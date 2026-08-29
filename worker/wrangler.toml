@@ -1,0 +1,14 @@
+name = "whatshouldwewatch-api"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+
+# One-time setup (see README in this folder): run
+#   wrangler kv namespace create SEEN_KV
+# and replace the id below with the one it prints.
+kv_namespaces = [
+  { binding = "SEEN_KV", id = "eb4cf9f212a4418d96021fe6603916e7" }
+]
+
+routes = [
+  { pattern = "api.whatshouldwewatch.geekvoice.net", custom_domain = true }
+]

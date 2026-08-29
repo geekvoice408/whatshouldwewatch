@@ -205,9 +205,13 @@
     <script>
         // SHA-256 of the management password. Client-side only — this deters
         // casual tampering, it is not real access control (page source and
-        // localStorage are fully visible/editable in devtools regardless).
+        // the API are fully visible/callable in devtools regardless).
         const PASSWORD_HASH = '9923f3ca7eee52346fe1207a93981493ad41a6fb6fbfed5e059e61bcc47fe0ab';
         const UNLOCK_KEY = 'manage_unlocked';
+
+        // Shared watch-history API (Cloudflare Worker + KV) — same backend
+        // index.html reads/writes, so this page reflects every browser/device.
+        const API_BASE = 'https://api.whatshouldwewatch.geekvoice.net';
 
         const showData = {
             familyguy: { name: "Family Guy" },
@@ -253,20 +257,18 @@
             renderShows();
         }
 
-        // ── Data helpers (mirror index.html's storage format) ─────────────
+        // ── Data helpers ─────────────────────────────────────────────────
 
-        function seenKey(season, epNum) { return `s${season}e${epNum}`; }
-
-        function getSeenMap(key) {
-            return JSON.parse(localStorage.getItem(`seen_${key}`) || '{}');
+        async function fetchAllSeen() {
+            const res = await fetch(`${API_BASE}/seen`);
+            if (!res.ok) throw new Error(`API returned ${res.status}`);
+            return res.json();
         }
-        function removeSeen(key, season, epNum) {
-            const map = getSeenMap(key);
-            delete map[seenKey(season, epNum)];
-            localStorage.setItem(`seen_${key}`, JSON.stringify(map));
+        async function removeSeen(key, season, epNum) {
+            await fetch(`${API_BASE}/seen/${key}/${season}/${epNum}`, { method: 'DELETE' });
         }
-        function clearSeen(key) {
-            localStorage.removeItem(`seen_${key}`);
+        async function clearSeen(key) {
+            await fetch(`${API_BASE}/seen/${key}`, { method: 'DELETE' });
         }
         function getEpisodeName(key, season, epNum) {
             try {
@@ -279,12 +281,21 @@
 
         // ── Rendering ────────────────────────────────────────────────────
 
-        function renderShows() {
+        async function renderShows() {
             const container = document.getElementById('showList');
+            container.innerHTML = '<p class="empty-state">Loading…</p>';
+
+            let all;
+            try {
+                all = await fetchAllSeen();
+            } catch (err) {
+                container.innerHTML = `<p class="empty-state">Couldn't reach the watch-history API. ${err.message}</p>`;
+                return;
+            }
             container.innerHTML = '';
 
             Object.entries(showData).forEach(([key, show]) => {
-                const map = getSeenMap(key);
+                const map = all[key] || {};
                 const entries = Object.values(map).sort((a, b) => a.s - b.s || a.e - b.e);
 
                 const section = document.createElement('div');
@@ -300,9 +311,9 @@
                     const clearBtn = document.createElement('button');
                     clearBtn.className = 'clear-all-btn';
                     clearBtn.textContent = 'Clear all';
-                    clearBtn.onclick = () => {
+                    clearBtn.onclick = async () => {
                         if (confirm(`Clear all watched episodes for ${show.name}?`)) {
-                            clearSeen(key);
+                            await clearSeen(key);
                             renderShows();
                         }
                     };
@@ -329,8 +340,8 @@
                         const btn = document.createElement('button');
                         btn.className = 'unwatch-btn';
                         btn.textContent = 'Un-watch';
-                        btn.onclick = () => {
-                            removeSeen(key, s, e);
+                        btn.onclick = async () => {
+                            await removeSeen(key, s, e);
                             renderShows();
                         };
                         row.appendChild(btn);

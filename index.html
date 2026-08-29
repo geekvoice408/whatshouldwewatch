@@ -807,6 +807,10 @@
     </div>
 
     <script>
+        // Shared watch-history API (Cloudflare Worker + KV) — replaces
+        // per-browser localStorage so "watched" is the same everywhere.
+        const API_BASE = 'https://api.whatshouldwewatch.geekvoice.net';
+
         // TVMaze is keyless; one /episodes call per show returns the full
         // catalogue (title, summary, runtime, rating, airdate) in one shot.
         const showData = {
@@ -872,21 +876,39 @@
 
         function seenKey(season, epNum) { return `s${season}e${epNum}`; }
 
-        function getSeenMap(key) {
-            return JSON.parse(localStorage.getItem(`seen_${key}`) || '{}');
-        }
+        // In-memory copy of the shared watch history, loaded from the API at
+        // startup. Reads stay synchronous (everything below assumes that);
+        // writes update this cache immediately and sync to the API in the
+        // background so the UI never waits on the network.
+        let seenCache = {};
+
+        function getSeenMap(key) { return seenCache[key] || {}; }
         function getSeen(key) { return new Set(Object.keys(getSeenMap(key))); }
+
         function addSeen(key, season, epNum) {
-            const map = getSeenMap(key);
+            const map = seenCache[key] || (seenCache[key] = {});
             map[seenKey(season, epNum)] = { s: season, e: epNum };
-            localStorage.setItem(`seen_${key}`, JSON.stringify(map));
+            return fetch(`${API_BASE}/seen/${key}/${season}/${epNum}`, { method: 'PUT' })
+                .catch(err => console.error('watch-history sync failed', err));
+        }
+        function clearSeenRemote(key) {
+            seenCache[key] = {};
+            return fetch(`${API_BASE}/seen/${key}`, { method: 'DELETE' })
+                .catch(err => console.error('watch-history sync failed', err));
+        }
+
+        // Legacy per-browser storage, read only for one-time migration into
+        // the shared API (see loadSeenCache) — no longer written to.
+        function getLegacySeenMap(key) {
+            try { return JSON.parse(localStorage.getItem(`seen_${key}`) || '{}'); }
+            catch { return {}; }
         }
 
         // One-time migration: watch history used to be keyed by OMDb imdbID
         // (tt…). Re-key by season/episode so it survives the TVMaze switch.
         function migrateSeenHistory() {
             Object.keys(showData).forEach(key => {
-                const map = getSeenMap(key);
+                const map = getLegacySeenMap(key);
                 if (!Object.keys(map).some(k => k.startsWith('tt'))) return;
                 const migrated = {};
                 Object.values(map).forEach(v => {
@@ -895,8 +917,32 @@
                 localStorage.setItem(`seen_${key}`, JSON.stringify(migrated));
             });
         }
+
+        // Load shared history from the API. If a browser still has episodes
+        // marked watched locally (from before this API existed) that the
+        // API doesn't know about yet, upload them once so nothing already
+        // watched gets lost in the move to shared storage.
+        async function loadSeenCache() {
+            try {
+                const res = await fetch(`${API_BASE}/seen`);
+                if (!res.ok) throw new Error(`API returned ${res.status}`);
+                seenCache = await res.json();
+            } catch (err) {
+                console.error('Could not reach watch-history API, using local data only', err);
+                seenCache = {};
+                Object.keys(showData).forEach(key => { seenCache[key] = getLegacySeenMap(key); });
+                return;
+            }
+            await Promise.all(Object.keys(showData).map(async key => {
+                const local = getLegacySeenMap(key);
+                const remote = seenCache[key] || {};
+                const missing = Object.values(local).filter(v => v && !remote[seenKey(v.s, v.e)]);
+                await Promise.all(missing.map(v => addSeen(key, v.s, v.e)));
+            }));
+        }
+
         function resetSeen(key) {
-            localStorage.removeItem(`seen_${key}`);
+            clearSeenRemote(key);
             updateButtonBadges();
             renderFilterPanel();
         }
@@ -1124,8 +1170,11 @@
         }
 
         // ── Init ─────────────────────────────────────────────────────────────
-        migrateSeenHistory();
-        updateButtonBadges();
+        (async function init() {
+            migrateSeenHistory();
+            await loadSeenCache();
+            updateButtonBadges();
+        })();
         startTimecode();
     </script>
 </body>
