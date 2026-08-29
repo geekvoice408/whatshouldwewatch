@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Watch History</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Open+Sans:wght@400;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Same studio-neutral palette as index.html, kept minimal here since
+           this page is a back-office tool, not the broadcast presentation. */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --paper:      #ffffff;
+            --paper-2:    #f4f6f9;
+            --ink:        #14171c;
+            --ink-soft:   #5c6672;
+            --ink-faint:  #8b95a1;
+            --rule:       #e2e6ec;
+            --rule-soft:  #eef1f5;
+            --rec:        #e0242b;
+            --tile:       #2c3e50;
+        }
+
+        body {
+            font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 0 18px 56px;
+        }
+
+        .container { max-width: 640px; margin: 0 auto; padding-top: 40px; }
+
+        h1 {
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-weight: 400;
+            font-size: 2.6em;
+            letter-spacing: 0.03em;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 0.78em;
+            letter-spacing: 0.1em;
+            color: var(--ink-soft);
+            margin-bottom: 28px;
+        }
+        .subtitle a { color: var(--ink-soft); }
+
+        /* ── Password gate ───────────────────────────────────────────────── */
+        #gate {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+            max-width: 320px;
+        }
+        #gate input[type="password"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--rule);
+            border-radius: 8px;
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 1em;
+        }
+        #gate input[type="password"]:focus {
+            outline: none;
+            border-color: var(--ink);
+        }
+        #gate button, .action-btn {
+            padding: 11px 20px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-size: 1em;
+            letter-spacing: 0.14em;
+            cursor: pointer;
+        }
+        #gate button:hover, .action-btn:hover { background: #000; }
+        #gateError {
+            display: none;
+            color: var(--rec);
+            font-size: 0.85em;
+        }
+        #gateError.show { display: block; }
+
+        /* ── Management panel ────────────────────────────────────────────── */
+        #panel { display: none; }
+        #panel.show { display: block; }
+
+        .show-section {
+            border: 2px solid var(--rule);
+            border-radius: 10px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .show-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 14px 18px;
+            background: var(--paper-2);
+            border-bottom: 1px solid var(--rule);
+        }
+        .show-name {
+            font-family: 'Bebas Neue', 'Open Sans', sans-serif;
+            font-size: 1.3em;
+            letter-spacing: 0.08em;
+        }
+        .show-count {
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.72em;
+            color: var(--ink-faint);
+        }
+        .clear-all-btn {
+            background: none;
+            border: none;
+            color: var(--ink-soft);
+            font-size: 0.75em;
+            letter-spacing: 0.04em;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .clear-all-btn:hover { color: var(--rec); }
+
+        .episode-list { list-style: none; }
+        .episode-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 18px;
+            border-bottom: 1px solid var(--rule-soft);
+            font-size: 0.9em;
+        }
+        .episode-row:last-child { border-bottom: none; }
+
+        .episode-tag {
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.78em;
+            color: var(--ink-faint);
+            flex-shrink: 0;
+            width: 62px;
+        }
+        .episode-name { flex: 1; }
+
+        .unwatch-btn {
+            background: none;
+            border: 1.5px solid var(--rule);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+            font-size: 0.72em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--ink-soft);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .unwatch-btn:hover { border-color: var(--rec); color: var(--rec); }
+
+        .empty-state {
+            padding: 20px 18px;
+            color: var(--ink-faint);
+            font-size: 0.88em;
+        }
+
+        .lock-btn {
+            background: none;
+            border: none;
+            color: var(--ink-faint);
+            font-size: 0.78em;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-top: 24px;
+        }
+        .lock-btn:hover { color: var(--ink); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manage Watch History</h1>
+        <p class="subtitle"><a href="index.html">&larr; back to Episode Roulette</a></p>
+
+        <div id="gate">
+            <input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password">
+            <button onclick="attemptUnlock()">Unlock</button>
+            <p id="gateError">Wrong password.</p>
+        </div>
+
+        <div id="panel">
+            <div id="showList"></div>
+            <button class="lock-btn" onclick="lock()">Lock this page</button>
+        </div>
+    </div>
+
+    <script>
+        // SHA-256 of the management password. Client-side only — this deters
+        // casual tampering, it is not real access control (page source and
+        // localStorage are fully visible/editable in devtools regardless).
+        const PASSWORD_HASH = '9923f3ca7eee52346fe1207a93981493ad41a6fb6fbfed5e059e61bcc47fe0ab';
+        const UNLOCK_KEY = 'manage_unlocked';
+
+        const showData = {
+            familyguy: { name: "Family Guy" },
+            simpsons:  { name: "The Simpsons" },
+            seinfeld:  { name: "Seinfeld" },
+            southpark: { name: "South Park" },
+            koth:      { name: "King of the Hill" },
+            laworder:  { name: "Law & Order" }
+        };
+
+        async function sha256Hex(text) {
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+            return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function attemptUnlock() {
+            const input = document.getElementById('passwordInput');
+            const hash = await sha256Hex(input.value);
+            if (hash === PASSWORD_HASH) {
+                localStorage.setItem(UNLOCK_KEY, '1');
+                showPanel();
+            } else {
+                document.getElementById('gateError').classList.add('show');
+                input.value = '';
+                input.focus();
+            }
+        }
+        document.getElementById('passwordInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') attemptUnlock();
+        });
+
+        function lock() {
+            localStorage.removeItem(UNLOCK_KEY);
+            document.getElementById('panel').classList.remove('show');
+            document.getElementById('gate').style.display = 'flex';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('passwordInput').focus();
+        }
+
+        function showPanel() {
+            document.getElementById('gate').style.display = 'none';
+            document.getElementById('panel').classList.add('show');
+            renderShows();
+        }
+
+        // ── Data helpers (mirror index.html's storage format) ─────────────
+
+        function seenKey(season, epNum) { return `s${season}e${epNum}`; }
+
+        function getSeenMap(key) {
+            return JSON.parse(localStorage.getItem(`seen_${key}`) || '{}');
+        }
+        function removeSeen(key, season, epNum) {
+            const map = getSeenMap(key);
+            delete map[seenKey(season, epNum)];
+            localStorage.setItem(`seen_${key}`, JSON.stringify(map));
+        }
+        function clearSeen(key) {
+            localStorage.removeItem(`seen_${key}`);
+        }
+        function getEpisodeName(key, season, epNum) {
+            try {
+                const cached = JSON.parse(localStorage.getItem(`episodes_${key}`) || 'null');
+                if (!cached || !Array.isArray(cached.episodes)) return null;
+                const ep = cached.episodes.find(e => e.s === season && e.e === epNum);
+                return ep ? ep.name : null;
+            } catch { return null; }
+        }
+
+        // ── Rendering ────────────────────────────────────────────────────
+
+        function renderShows() {
+            const container = document.getElementById('showList');
+            container.innerHTML = '';
+
+            Object.entries(showData).forEach(([key, show]) => {
+                const map = getSeenMap(key);
+                const entries = Object.values(map).sort((a, b) => a.s - b.s || a.e - b.e);
+
+                const section = document.createElement('div');
+                section.className = 'show-section';
+
+                const header = document.createElement('div');
+                header.className = 'show-header';
+                header.innerHTML = `
+                    <span class="show-name">${show.name}</span>
+                    <span class="show-count">${entries.length} watched</span>
+                `;
+                if (entries.length > 0) {
+                    const clearBtn = document.createElement('button');
+                    clearBtn.className = 'clear-all-btn';
+                    clearBtn.textContent = 'Clear all';
+                    clearBtn.onclick = () => {
+                        if (confirm(`Clear all watched episodes for ${show.name}?`)) {
+                            clearSeen(key);
+                            renderShows();
+                        }
+                    };
+                    header.appendChild(clearBtn);
+                }
+                section.appendChild(header);
+
+                if (entries.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'empty-state';
+                    empty.textContent = 'Nothing marked watched yet.';
+                    section.appendChild(empty);
+                } else {
+                    const list = document.createElement('ul');
+                    list.className = 'episode-list';
+                    entries.forEach(({ s, e }) => {
+                        const row = document.createElement('li');
+                        row.className = 'episode-row';
+                        const name = getEpisodeName(key, s, e);
+                        row.innerHTML = `
+                            <span class="episode-tag">S${String(s).padStart(2,'0')}E${String(e).padStart(2,'0')}</span>
+                            <span class="episode-name">${name ? name : ''}</span>
+                        `;
+                        const btn = document.createElement('button');
+                        btn.className = 'unwatch-btn';
+                        btn.textContent = 'Un-watch';
+                        btn.onclick = () => {
+                            removeSeen(key, s, e);
+                            renderShows();
+                        };
+                        row.appendChild(btn);
+                        list.appendChild(row);
+                    });
+                    section.appendChild(list);
+                }
+
+                container.appendChild(section);
+            });
+        }
+
+        // ── Init ─────────────────────────────────────────────────────────
+        if (localStorage.getItem(UNLOCK_KEY) === '1') {
+            showPanel();
+        } else {
+            document.getElementById('passwordInput').focus();
+        }
+    </script>
+</body>
+</html>
