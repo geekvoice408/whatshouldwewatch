@@ -2,6 +2,13 @@ name = "whatshouldwewatch-api"
 main = "src/index.js"
 compatibility_date = "2026-08-01"
 
+# Temporary fallback while api.whatshouldwewatch.geekvoice.net's custom-domain
+# cert is stuck (Cloudflare-side issue, unrelated to the CAA records — those
+# are correct). *.workers.dev uses Cloudflare's own wildcard cert, so it works
+# immediately. Remove once the custom domain is confirmed working, and switch
+# API_BASE in index.html/manage.html back.
+workers_dev = true
+
 # One-time setup (see README in this folder): run
 #   wrangler kv namespace create SEEN_KV
 # and replace the id below with the one it prints.
